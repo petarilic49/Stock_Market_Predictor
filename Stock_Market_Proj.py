@@ -274,21 +274,21 @@ def LongShort(tdata):
     #Since we are only looking at previous close prices, this is a univariate model itself
     #It is also good idea to normalize the data for easier training by the LSTM 
     scaler = MinMaxScaler(feature_range=(0,1))
-    new_data = pd.DataFrame({'Close': tdata['Close']})
-    totaldt = new_data
-    dataset_train = pd.DataFrame(new_data[:round(len(new_data)*0.70)])
-    dataset_test = pd.DataFrame(new_data[round(len(new_data)*0.70):len(new_data)])
-    new_data = scaler.fit_transform(new_data)
+    #new_data = pd.DataFrame({'Close': tdata['Close']})
+    dataset_total = pd.DataFrame({'Close': tdata['Close']})
+    dataset_train = pd.DataFrame(dataset_total[:round(len(tdata)*0.70)])
+    dataset_test = pd.DataFrame(dataset_total[round(len(tdata)*0.70):len(tdata)])
     #Convert to 1D array
-    new_data = new_data.flatten()
-    X_train = np.array(new_data[:round(len(new_data)*0.70)])
+    X_train = np.array(dataset_train)
+    X_train = scaler.fit_transform(X_train)
+    X_train = X_train.flatten()
 
     #Split the training data into the appropriate form for LSTM model. LSTM expects data to be in a 3D array
     Xtrain = []
     Ytrain = []
 
-    for i in range(30, len(X_train)):
-        Xtrain.append(X_train[i-30:i])
+    for i in range(35, len(X_train)):
+        Xtrain.append(X_train[i-35:i])
         Ytrain.append(X_train[i])
     #Make the Xtrain and Ytrain an array
     Xtrain, Ytrain = np.array(Xtrain), np.array(Ytrain)
@@ -299,48 +299,39 @@ def LongShort(tdata):
     #Create the actual LSTM model
     model = Sequential()
 
-    model.add(LSTM(units=20, return_sequences=True, input_shape=(Xtrain.shape[1], 1)))
-    model.add(Dropout(0.2))
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(Xtrain.shape[1], 1)))
+    model.add(Dropout(0.15))
 
-    model.add(LSTM(units=20, return_sequences=True))
-    model.add(Dropout(0.2))
+    model.add(LSTM(units=50, return_sequences=False))
+    model.add(Dropout(0.15))
 
-    model.add(LSTM(units=20, return_sequences=True))
-    model.add(Dropout(0.2))
-
-    model.add(LSTM(units=20, return_sequences=False))
-    model.add(Dropout(0.2))
-
-    model.add(Dense(1))
+    model.add(Dense(units=1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
 
-    model.fit(Xtrain, Ytrain, epochs=100, batch_size=32)
+    model.fit(Xtrain, Ytrain, epochs=100, batch_size=16)
 
     #Test the LSTM model with the test data 
     #First we need to get the testing data 
-    dataset_total = pd.concat((dataset_train['Close'], dataset_test['Close']), axis=0)
-    inputs = dataset_total[len(dataset_total) - len(dataset_test) - 30:].values
-    inputs = inputs.reshape(-1, 1)
+    inputs = dataset_total[len(dataset_total) - len(dataset_test) - 35:].values
     inputs = scaler.fit_transform(inputs)
-    #print(len(inputs))
 
     test_data = []
-    for i in range(30, len(inputs)):
-        test_data.append(inputs[i-30:i])
+    for i in range(35, len(inputs)):
+        test_data.append(inputs[i-35:i])
     test_data = np.array(test_data)
     test_data = np.reshape(test_data, (test_data.shape[0], test_data.shape[1],1))
 
     #Make the predictions
     predictions = model.predict(test_data)
-    #print(predictions)
     predictions = scaler.inverse_transform(predictions)
+    print(len(predictions))
 
-    for i in range(round(len(new_data)*0.7), len(new_data)):
-        totaldt.at[i,'Predicted Close'] = predictions[i-176]
+    for i in range(round(len(dataset_total)*0.7), len(dataset_total)):
+        dataset_total.at[i,'Predicted Close'] = predictions[i-176]
     
-    plt.plot(tdata['Date'], totaldt['Close'], label = 'Real Prices')
-    plt.plot(tdata['Date'], totaldt['Predicted Close'], label = 'Predicted Prices')
+    plt.plot(tdata['Date'], dataset_total['Close'], label = 'Real Prices')
+    plt.plot(tdata['Date'], dataset_total['Predicted Close'], label = 'Predicted Prices')
     plt.xlabel('Date')
     plt.ylabel('Closing Price')
     plt.legend()
