@@ -1,18 +1,20 @@
 #PURPOSE: to investigate the different machine learning regression algorithms and see which is best for predicting stock market prices
 import numpy as  np
 import pandas as pd 
-import sklearn.metrics as sm
-from sklearn.linear_model import LinearRegression
+# import sklearn.metrics as sm
+# from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from sklearn import neighbors
-from sklearn.model_selection import GridSearchCV
+# from sklearn import neighbors
+# from sklearn.model_selection import GridSearchCV
 from math import sqrt
 from matplotlib import pyplot as plt
-from statsmodels.tsa.stattools import adfuller
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from statsmodels.tsa.arima.model import ARIMA
-from pmdarima.arima import auto_arima
+# from statsmodels.tsa.stattools import adfuller
+# from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+# from statsmodels.tsa.arima.model import ARIMA
+# from pmdarima.arima import auto_arima
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Dropout
 
 #We will use AMD stock prices for example
 #Load the stock prices and other variables into the data variable by reading the .csv file
@@ -195,79 +197,161 @@ data = pd.read_csv('AMD.csv')
 #     print("R2 score =", round(sm.r2_score(Y_test, prediction), 2))
 
 #Auto ARIMA Method
-def AutoARIMA(tdata):
-    #Load the data into a new variable
+# def AutoARIMA(tdata):
+#     #Load the data into a new variable
+#     #Since we are only looking at previous close prices, this is a univariate model itself
+#     new_data = pd.DataFrame({'Close': tdata['Close']})
+#     Y_train = np.array(new_data['Close'][:round(len(new_data)*0.70)])
+#     Y_train = Y_train[:, np.newaxis]
+#     Y_test = np.array(new_data['Close'][round(len(new_data)*0.70):len(new_data)])
+#     Y_test = Y_test[:, np.newaxis]
+
+
+#     #We need to check if the time series is stationary. Just by looking at the stock prices we know its not but for good practice I'll implement the code
+#     #I will use the augmented dickey fuller test to check if the data is stationary 
+#     stat_test = adfuller(Y_train, autolag="AIC")
+#     #print(stat_test[1]) #The test shows that our p value is 0.723 which is much greater than 0.05. This means that we have 0.723 chance 
+#     #probability that null hypothesis will not be rejected and therefore we know our time series is NOT stationary
+
+#     #We now need to make our time series stationary
+#     #We will use the simplest method which is just differencing the time series (ie subtract the current value by the previous)
+#     new_data_stationary = new_data['Close'][:round(len(new_data)*0.70)].diff().dropna()
+#     Y_train_st = np.array(new_data_stationary)
+#     Y_train_st = Y_train[:, np.newaxis]
+
+#     #Check again if the time series is stationary
+#     stat_test = adfuller(Y_train_st, autolag="AIC")
+#     #print(stat_test[1]) # The p value is much smaller than 0.05 therefore we can reject the Null Hypothesis and therefore the time series is now stationary
+#     #Plot the stationarized time series
+#     # plt.plot(new_data_stationary, label = 'Difference')
+#     # plt.xlabel('Time')
+#     # plt.ylabel('Diff')
+#     # plt.legend()
+#     # plt.show()
+
+#     #Need to find the p and q values for the ARIMA model. We can do this by ploting the ACF and PACF 
+#     #To learn the theory of the model I will create the plots and try to pick appropriate p and q values, but in reality there is an auto_arima function that would do 
+#     #so automatically 
+#     #Rule for Choosing p: If the PACF of the differenced series displays a sharp cutoff and/or the lag-1 autocorrelation is positive--i.e., if the series 
+#     #appears slightly "underdifferenced"--then consider adding an AR term to the model. The lag at which the PACF cuts off is the indicated number of AR terms.
+#     #Rule for Choosing q: If the ACF of the differenced series displays a sharp cutoff and/or the lag-1 autocorrelation is negative--i.e., if the series 
+#     #appears slightly "overdifferenced"--then consider adding an MA term to the model. The lag at which the ACF cuts off is the indicated number of MA terms.
+#     #Use the following link as reference: http://people.duke.edu/~rnau/411arim3.htm
+
+#     #Plot the ACF
+#     #plot_acf(Y_train)
+#     #plt.show() #q = 1
+
+#     #Plot the PACF
+#     #plot_pacf(Y_train)
+#     #plt.show() #p = 0
+#     auto_model = auto_arima(Y_train, start_p=1, start_q=1, test='adf', max_p=5, max_q=5, d=None, seasonal=False) # See what auto_arima tells us the p, q, and d values should be
+#     print(auto_model.summary()) # Tells us they should be as follows: p = 0, d = 1, q = 1 
+#     start = len(Y_train)
+#     end = len(Y_train) + len(Y_test)
+#     prediction = auto_model.predict(n_periods=(end-start))
+    
+#     for i in range(round(len(new_data)*0.7), len(new_data)):
+#         new_data.at[i,'Predicted Close'] = prediction[i-176]
+    
+#     plt.plot(tdata['Date'], new_data['Close'], label = 'Real Prices')
+#     plt.plot(tdata['Date'], new_data['Predicted Close'], label = 'Predicted Prices')
+#     plt.xlabel('Date')
+#     plt.ylabel('Closing Price')
+#     plt.legend()
+#     plt.show()
+
+#     # Calculate the error of the model. Since both the created and the scikit models output the same value we will just use the scikit model to find accuracy
+#     print("Mean absolute error =", round(sm.mean_absolute_error(Y_test, prediction), 2)) 
+#     print("Mean squared error =", round(sm.mean_squared_error(Y_test, prediction), 2)) 
+#     print("Median absolute error =", round(sm.median_absolute_error(Y_test, prediction), 2)) 
+#     print("Explain variance score =", round(sm.explained_variance_score(Y_test, prediction), 2)) 
+#     print("R2 score =", round(sm.r2_score(Y_test, prediction), 2))
+    
+
+def LongShort(tdata):
+     #Load the data into a new variable
     #Since we are only looking at previous close prices, this is a univariate model itself
+    #It is also good idea to normalize the data for easier training by the LSTM 
+    scaler = MinMaxScaler(feature_range=(0,1))
     new_data = pd.DataFrame({'Close': tdata['Close']})
-    Y_train = np.array(new_data['Close'][:round(len(new_data)*0.70)])
-    Y_train = Y_train[:, np.newaxis]
-    Y_test = np.array(new_data['Close'][round(len(new_data)*0.70):len(new_data)])
-    Y_test = Y_test[:, np.newaxis]
+    totaldt = new_data
+    dataset_train = pd.DataFrame(new_data[:round(len(new_data)*0.70)])
+    dataset_test = pd.DataFrame(new_data[round(len(new_data)*0.70):len(new_data)])
+    new_data = scaler.fit_transform(new_data)
+    #Convert to 1D array
+    new_data = new_data.flatten()
+    X_train = np.array(new_data[:round(len(new_data)*0.70)])
 
+    #Split the training data into the appropriate form for LSTM model. LSTM expects data to be in a 3D array
+    Xtrain = []
+    Ytrain = []
 
-    #We need to check if the time series is stationary. Just by looking at the stock prices we know its not but for good practice I'll implement the code
-    #I will use the augmented dickey fuller test to check if the data is stationary 
-    stat_test = adfuller(Y_train, autolag="AIC")
-    #print(stat_test[1]) #The test shows that our p value is 0.723 which is much greater than 0.05. This means that we have 0.723 chance 
-    #probability that null hypothesis will not be rejected and therefore we know our time series is NOT stationary
+    for i in range(30, len(X_train)):
+        Xtrain.append(X_train[i-30:i])
+        Ytrain.append(X_train[i])
+    #Make the Xtrain and Ytrain an array
+    Xtrain, Ytrain = np.array(Xtrain), np.array(Ytrain)
 
-    #We now need to make our time series stationary
-    #We will use the simplest method which is just differencing the time series (ie subtract the current value by the previous)
-    new_data_stationary = new_data['Close'][:round(len(new_data)*0.70)].diff().dropna()
-    Y_train_st = np.array(new_data_stationary)
-    Y_train_st = Y_train[:, np.newaxis]
+    #Need to reshape the data for the LSTM model
+    Xtrain = np.reshape(Xtrain, (Xtrain.shape[0], Xtrain.shape[1],1))
 
-    #Check again if the time series is stationary
-    stat_test = adfuller(Y_train_st, autolag="AIC")
-    #print(stat_test[1]) # The p value is much smaller than 0.05 therefore we can reject the Null Hypothesis and therefore the time series is now stationary
-    #Plot the stationarized time series
-    # plt.plot(new_data_stationary, label = 'Difference')
-    # plt.xlabel('Time')
-    # plt.ylabel('Diff')
-    # plt.legend()
-    # plt.show()
+    #Create the actual LSTM model
+    model = Sequential()
 
-    #Need to find the p and q values for the ARIMA model. We can do this by ploting the ACF and PACF 
-    #To learn the theory of the model I will create the plots and try to pick appropriate p and q values, but in reality there is an auto_arima function that would do 
-    #so automatically 
-    #Rule for Choosing p: If the PACF of the differenced series displays a sharp cutoff and/or the lag-1 autocorrelation is positive--i.e., if the series 
-    #appears slightly "underdifferenced"--then consider adding an AR term to the model. The lag at which the PACF cuts off is the indicated number of AR terms.
-    #Rule for Choosing q: If the ACF of the differenced series displays a sharp cutoff and/or the lag-1 autocorrelation is negative--i.e., if the series 
-    #appears slightly "overdifferenced"--then consider adding an MA term to the model. The lag at which the ACF cuts off is the indicated number of MA terms.
-    #Use the following link as reference: http://people.duke.edu/~rnau/411arim3.htm
+    model.add(LSTM(units=20, return_sequences=True, input_shape=(Xtrain.shape[1], 1)))
+    model.add(Dropout(0.2))
 
-    #Plot the ACF
-    #plot_acf(Y_train)
-    #plt.show() #q = 1
+    model.add(LSTM(units=20, return_sequences=True))
+    model.add(Dropout(0.2))
 
-    #Plot the PACF
-    #plot_pacf(Y_train)
-    #plt.show() #p = 0
-    auto_model = auto_arima(Y_train, start_p=1, start_q=1, test='adf', max_p=5, max_q=5, d=None, seasonal=False) # See what auto_arima tells us the p, q, and d values should be
-    print(auto_model.summary()) # Tells us they should be as follows: p = 0, d = 1, q = 1 
-    start = len(Y_train)
-    end = len(Y_train) + len(Y_test)
-    prediction = auto_model.predict(n_periods=(end-start))
-    
+    model.add(LSTM(units=20, return_sequences=True))
+    model.add(Dropout(0.2))
+
+    model.add(LSTM(units=20, return_sequences=False))
+    model.add(Dropout(0.2))
+
+    model.add(Dense(1))
+
+    model.compile(optimizer='adam', loss='mean_squared_error')
+
+    model.fit(Xtrain, Ytrain, epochs=100, batch_size=32)
+
+    #Test the LSTM model with the test data 
+    #First we need to get the testing data 
+    dataset_total = pd.concat((dataset_train['Close'], dataset_test['Close']), axis=0)
+    inputs = dataset_total[len(dataset_total) - len(dataset_test) - 30:].values
+    inputs = inputs.reshape(-1, 1)
+    inputs = scaler.fit_transform(inputs)
+    #print(len(inputs))
+
+    test_data = []
+    for i in range(30, len(inputs)):
+        test_data.append(inputs[i-30:i])
+    test_data = np.array(test_data)
+    test_data = np.reshape(test_data, (test_data.shape[0], test_data.shape[1],1))
+
+    #Make the predictions
+    predictions = model.predict(test_data)
+    #print(predictions)
+    predictions = scaler.inverse_transform(predictions)
+
     for i in range(round(len(new_data)*0.7), len(new_data)):
-        new_data.at[i,'Predicted Close'] = prediction[i-176]
+        totaldt.at[i,'Predicted Close'] = predictions[i-176]
     
-    plt.plot(tdata['Date'], new_data['Close'], label = 'Real Prices')
-    plt.plot(tdata['Date'], new_data['Predicted Close'], label = 'Predicted Prices')
+    plt.plot(tdata['Date'], totaldt['Close'], label = 'Real Prices')
+    plt.plot(tdata['Date'], totaldt['Predicted Close'], label = 'Predicted Prices')
     plt.xlabel('Date')
     plt.ylabel('Closing Price')
     plt.legend()
     plt.show()
 
-    # Calculate the error of the model. Since both the created and the scikit models output the same value we will just use the scikit model to find accuracy
-    print("Mean absolute error =", round(sm.mean_absolute_error(Y_test, prediction), 2)) 
-    print("Mean squared error =", round(sm.mean_squared_error(Y_test, prediction), 2)) 
-    print("Median absolute error =", round(sm.median_absolute_error(Y_test, prediction), 2)) 
-    print("Explain variance score =", round(sm.explained_variance_score(Y_test, prediction), 2)) 
-    print("R2 score =", round(sm.r2_score(Y_test, prediction), 2))
 
-    
+  
+
+
 #MovingAvg(data)     
 #LinearReg(data)
 #Knearest(data)
-AutoARIMA(data)
+#AutoARIMA(data)
+LongShort(data)
