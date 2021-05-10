@@ -1,1 +1,3 @@
-# Stock_Market_Predictor
+# Stock Market Forecast Project
+
+The purpose
