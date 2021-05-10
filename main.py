@@ -21,7 +21,7 @@ plt.show()
 
 #Call the individual algorithm functions to run and predict the future closing price for the testing data
 Moving_Average.MovingAvg(data) 
-# Linear_Regression.LinearReg(data)   
-# KNearestNeighbor.Knearest(data)
-# AutoARIMA.AutoARIMA(data)
-# LongShort.LongShort(data)
+Linear_Regression.LinearReg(data)   
+KNearestNeighbor.Knearest(data)
+AutoARIMA.AutoARIMA(data)
+LongShort.LongShort(data)
