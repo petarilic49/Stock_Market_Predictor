@@ -16,8 +16,10 @@ Each algorithm will also be evaluated by their mean absolute error, mean squared
 The moving average algorithm is the simplest of the five, as it only takes the average of the previous 20 time steps (ie 20 previous closing prices) to predict the future closing price of the stock. In order to do this a for loop was utilized to continuously input the averaged predicted future price of the stock. The plot below displays the real closing price versus the predicted moving average closing price of the stock. 
 ![image](https://user-images.githubusercontent.com/37299986/117724689-1f28e180-b1b2-11eb-9663-4067084885b9.png)
 The moving average model contained the following accuracy score: 
-  Mean absolute error = 3.32
-  Mean squared error = 17.03
-  Median absolute error = 2.89
-  Explain variance score = 0.47
-  R2 score = 0.36
+  - Mean absolute error = 3.32
+  - Mean squared error = 17.03
+  - Median absolute error = 2.89
+  - Explain variance score = 0.47
+  - R2 score = 0.36
+
+
