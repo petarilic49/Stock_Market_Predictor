@@ -23,4 +23,14 @@ The moving average model contained the following accuracy scores:
   - R2 score = 0.36
 
 # Linear Regression
-Linear Regression is a statistical approach to modelling the relationship between a scalar repsonse and one or more independent variables. Y^2
+Linear Regression is a statistical approach to modelling the relationship between a scalar repsonse and one or more independent variables. The Linear Regression equation can be modeled as Y_hat = B_not + B_1*X1 ... B_n*Xn, where the B values are constants or weights and the X values are the independent variables. Thinking practically the only independent variable we have in this application is the date since we will not know the opening, high, low, and volume of the given stock for the future. However if we only use the date as an independent variable we will get very inaccurate future predictions. For this reason its assumed that the opening price and volume of the stock at the given day are our independent variables. This is because opening prices and volume are given at the opening of the stock market therefore our algorithm could predict the closing price based on these numbers for that day. To ease program implementation, matrix algebra is used to solve for the B values using the training data. The predicted closing prices are computed by using the testing independent variables and the obtained Linear Regression model. 
+The Linear Regression model was created without the scikit learn library to test the theory behind the algorithm. To check that the implemented model is correct, the scikit learn Linear Regression function was used to check the predicted closing prices match the created model. 
+The following plot displays the predicted closing prices using the Linear Regression model versus the real closing price. 
+![image](https://user-images.githubusercontent.com/37299986/117730464-5dc29a00-b1ba-11eb-83da-b3a84277ff16.png)
+From the plot above it is evident that the created linear regression model and the scikit learn linear regression model output the same predicted prices which validates that the created linear regression model is correct. In addition, the linear regression model obtained the following accuracy scores: 
+- Mean absolute error = 12.77
+- Mean squared error = 223.58
+- Median absolute error = 13.59
+- Explain variance score = -1.7
+- R2 score = -7.34
+
