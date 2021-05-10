@@ -35,3 +35,14 @@ From the plot above it is evident that the created linear regression model and t
 - R2 score = -7.34
 
 # K Nearest Neighbor
+K Nearest Neighbor is a statistical algorithm which stores previously known cases to predict new cases based on similarity (ie where the nearest neighbor comes from). K Nearest Neighbor algorithms work for both classification and regression problems which makes it applicable for this application. In this situation, the training data was fitted into the scikit learn K Nearest Neighbor model where the opening price and volume were the classifiers for the closing price. Once the model was fitted, the testing datat was fed through the model where the model takes the average of the nearest neighbors (ie closest data points) to determine the closing stock price.
+Determining the K value could be chosen graphically by using a GridSearchCV to test the Root Mean Square Error for a set of K values. In this situation a K value of 2 was chosen and is shown to have the lowest Root Mean Square Error as seen by the plot below. 
+![image](https://user-images.githubusercontent.com/37299986/117736453-9b78f000-b1c5-11eb-8e3b-a4b113b6c5ed.png)
+Once the K value is chosen the model was tested using the testing data. The plot below displays the K Nearest Neighbor predicted closing price versus the real closing price of the stock. 
+![image](https://user-images.githubusercontent.com/37299986/117736525-d11dd900-b1c5-11eb-9d19-219e33c2e5d8.png)
+The K Neareast Neighbor algorithm obtained the following accuracy scores: 
+- Mean absolute error = 13.47
+- Mean squared error = 271.89
+- Median absolute error = 9.3
+- Explain variance score = -2.57
+- R2 score = -9.14
