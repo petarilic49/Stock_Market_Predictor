@@ -34,3 +34,4 @@ From the plot above it is evident that the created linear regression model and t
 - Explain variance score = -1.7
 - R2 score = -7.34
 
+# K Nearest Neighbor
