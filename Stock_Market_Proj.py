@@ -55,15 +55,6 @@ data = pd.read_csv('AMD.csv')
 #For this reason I am going to assume that the opening price and volume of the stock at the given day are our independent variables. This is because opening
 #prices and volume are given at the opening of the stock market therefore our algorithm could predict the closing price based on these numbers for that day 
 
-# def switch_func(d):
-#     return{
-#         'Monday': 1,
-#         'Tuesday': 0,
-#         'Wednesday': 0,
-#         'Thursday': 0,
-#         'Friday': 1
-#     }.get(d, 0)
-
 # def LinearReg(tdata):
 #     #Load the Opening Price, Volume, and Closing Price per day into a new Dataframe
 #     new_data = pd.DataFrame({'Open' : tdata['Open'], 'Volume' : tdata['Volume'], 'Close': tdata['Close']})
@@ -274,7 +265,6 @@ def LongShort(tdata):
     #Since we are only looking at previous close prices, this is a univariate model itself
     #It is also good idea to normalize the data for easier training by the LSTM 
     scaler = MinMaxScaler(feature_range=(0,1))
-    #new_data = pd.DataFrame({'Close': tdata['Close']})
     dataset_total = pd.DataFrame({'Close': tdata['Close']})
     dataset_train = pd.DataFrame(dataset_total[:round(len(tdata)*0.70)])
     dataset_test = pd.DataFrame(dataset_total[round(len(tdata)*0.70):len(tdata)])
