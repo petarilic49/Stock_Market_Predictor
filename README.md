@@ -5,7 +5,7 @@ The purpose of this project is to investigate five different regression machine 
   - Moving Average (Beginner)
   - Linear Regression
   - K Nearest Neighbor
-  - Auto ARIMA
+  - Auto Regressive Integrated Moving Average (ARIMA)
   - Long Short Term Memory Recurrent Neural Network (Advanced)
 
 To test the algorithms, one year historical stock data from Advanced Micro Devices (AMD) was taken from Yahoo Finance and downloaded into a .csv file. AMD was chosen arbitrarily and any other stock from Yahoo Finance could work with this code. The program begins by plotting the closing price of AMD over the past year and clearly illustrating which time steps will be used for training and which time steps will be used for testing. The plot below displays this clearly. 
@@ -46,3 +46,20 @@ The K Neareast Neighbor algorithm obtained the following accuracy scores:
 - Median absolute error = 9.3
 - Explain variance score = -2.57
 - R2 score = -9.14
+
+# Auto Regressive Integrated Moving Average (ARIMA)
+ARIMA is a popular statistical algorithm which when given a stationary time series can forecast future values based on its own past values by analyzing its own lags and the lagged forecast errors. The most important aspect when dealing with ARIMA models is ensuring the time series data is stationary which is defined by having a constant mean over time, consant variance over time, and no seasonality. A popular test for determining if a time series is stationary is the Augmented Dickey Fuller test which was utilized in the coded ARIMA model. In terms of this specific application, stock price trends are almost always non-stationary therefore the training data was turned into a stationary dataset by implementing the difference method (ie difference current time step value by previous time step value). The plot below displays the stationary training data after differencing. 
+![image](https://user-images.githubusercontent.com/37299986/117737229-6b325100-b1c7-11eb-88d6-42227f6f3982.png)
+The ARIMA model contains three vital parameters which are the p (order of auto regression), d (number of differencing), and q (order of moving average). The p value can be obtained by observing a Partial Autocorelation Function Plot (PACF), while the q value can be obtained by observing a Autocorrelation Function Plot (ACF). The d value is the number of times the differencing method was applied (ie in our case just once therefore d=1). The PACF and ACF plots below were obtained for the stationary training dataset and imply a p value of 0 and a q value of 1. 
+![image](https://user-images.githubusercontent.com/37299986/117737636-45597c00-b1c8-11eb-824c-a1bb6b6d3e66.png)
+![image](https://user-images.githubusercontent.com/37299986/117737663-51453e00-b1c8-11eb-8977-1b1de3efd726.png)
+Luckily in python, the pmdarima library contains an 'auto_arima' function which automatically caluclates which ARIMA model is most appropriate for the given time series, as well as automatically calculate which p, q, and d values are optimal for the chosen model. The plot below displays the predicted closing prices from the ARIMA model versus the real closing prices of the stock. 
+![image](https://user-images.githubusercontent.com/37299986/117737826-abde9a00-b1c8-11eb-8788-c8bf3500e12b.png)
+The ARIMA model obtained the following accuracy scores: 
+- Mean absolute error = 20.96
+- Mean squared error = 534.4
+- Median absolute error = 24.41
+- Explain variance score = -2.55
+- R2 score = -18.94
+
+# Long Short Term Memory Recurrent Neural Network
