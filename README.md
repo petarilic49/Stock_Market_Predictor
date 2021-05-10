@@ -8,4 +8,5 @@ The purpose of this project is to investigate five different regression machine 
   - Auto ARIMA
   - Long Short Term Memory Recurrent Neural Network (Advanced)
 
-To test the algorithms, historical stock data from Advanced Micro Devices (AMD) was taken from Yahoo Finance and downloaded into a .csv file. AMD was chosen arbitrarily and any other stock from Yahoo Finance could work with this code. 
+To test the algorithms, one year historical stock data from Advanced Micro Devices (AMD) was taken from Yahoo Finance and downloaded into a .csv file. AMD was chosen arbitrarily and any other stock from Yahoo Finance could work with this code. The program begins by plotting the closing price of AMD over the past year and clearly illustrating which time steps will be used for training and which time steps will be used for testing. The plot below displays this clearly. 
+
