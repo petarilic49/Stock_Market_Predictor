@@ -23,4 +23,4 @@ The moving average model contained the following accuracy scores:
   - R2 score = 0.36
 
 # Linear Regression
-
+Linear Regression is a statistical approach to modelling the relationship between a scalar repsonse and one or more independent variables. Y^2
