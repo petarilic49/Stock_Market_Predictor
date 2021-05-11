@@ -63,3 +63,14 @@ The ARIMA model obtained the following accuracy scores:
 - R2 score = -18.94
 
 # Long Short Term Memory Recurrent Neural Network
+Long Short Term Memory Neural Networks are a type of Recurrent Neural Network that is capable of learning order dependences in a sequence prediction problem. Simple put, they solve the long term memory inefficiency that regular Neural Networks possess. This type of network takes in a sequence of previous data to predict future data at the current time step. In this situation, the Long Short Term Memory model will take in the previous 35 closing prices to predict the future closing price. This is done by processing the training data in the adequate format to feed into the neural network. 
+Python contains the Google Tensorflow library which is compatible with the Keras library that holds the LSTM model, dropout, dense, and Sequential functions that were all used in creating the Long Short Term Memory model. The plot below displays the predicted closing price from the Long Short Term Memory model versus the real closing stock price. 
+![image](https://user-images.githubusercontent.com/37299986/117738658-8b174400-b1ca-11eb-9099-2dab214847e2.png)
+The Long Short Term Memory model obtained the following accuracy scores: 
+- Mean absolute error = 2.72
+- Mean squared error = 10.88
+- Median absolute error = 2.49
+- Explain variance score = 0.64
+- R2 score = 0.59
+
+# Results
