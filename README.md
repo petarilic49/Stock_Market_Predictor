@@ -72,5 +72,3 @@ The Long Short Term Memory model obtained the following accuracy scores:
 - Median absolute error = 2.49
 - Explain variance score = 0.64
 - R2 score = 0.59
-
-# Results
